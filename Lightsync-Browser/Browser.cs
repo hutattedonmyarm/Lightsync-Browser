@@ -1,9 +1,8 @@
-﻿using System;
+﻿using Lightsync_Browser.Helper;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Automation;
 
 namespace Lightsync_Browser
@@ -24,6 +23,7 @@ namespace Lightsync_Browser
             {"beta.pnut.io", new LightsyncColor(30, 30, 30) },
             {"tildes.", new LightsyncColor(15, 21, 39) }
         };
+        protected static List<string> UrlProtocols = new List<string>{ "http://", "https://", };
 
         public delegate void UrlChanged(object sender, EventArgs e);
         public event EventHandler<ColorChangedEventArgs> ColorChanged;
@@ -63,8 +63,10 @@ namespace Lightsync_Browser
             var element = _element;
             foreach (var condition in _addressBarConditions)
             {
+                Console.WriteLine($"Element: {element.Current.Name}; {element.Current.ControlType.ProgrammaticName}");
                 element = element.FindFirst(TreeScope.Descendants, condition);
             }
+            Console.WriteLine($"Address bar: {element.Current.Name}; {element.Current.ControlType.ProgrammaticName}");
             return element;
         }
 
@@ -80,10 +82,15 @@ namespace Lightsync_Browser
                 TreeScope.Element,
                 _propChangeHandler = new AutomationPropertyChangedEventHandler(OnPropertyChange),
                  AutomationProperty.LookupById(ValuePattern.ValueProperty.Id));
+            Console.WriteLine($"SubscribePropertyChange. Address: {GetCurrentUrl()}");
         }
         protected void OnPropertyChange(object src, AutomationPropertyChangedEventArgs e)
         {
             AutomationElement sourceElement = src as AutomationElement;
+            Console.WriteLine($"OnPropertyChange Element: {sourceElement.Current.Name}; {sourceElement.Current.ControlType.ProgrammaticName}");
+            Console.WriteLine($"OnPropertyChange Property: {e.Property.ProgrammaticName}");
+            Console.WriteLine($"OnPropertyChange Value: {e.NewValue}");
+
             if (e.Property == ValuePattern.ValueProperty)
             {
                 var newVal = (string)e.NewValue;
@@ -101,19 +108,19 @@ namespace Lightsync_Browser
 
         protected static LightsyncColor? GetColorForUrl(string url)
         {
-            var r = new Random();
             try
             {
-                var uri = new Uri(url);
+                var uri = new Uri(url.EnsureProtocol(UrlProtocols));
                 Console.WriteLine($"New URL with host: {uri.Host}");
                 var key = hostColor.Keys.FirstOrDefault(x => uri.Host.Contains(x));
                 if (key != null)
                 {
                     return hostColor[key];
                 }
-
-            } catch
+            }
+            catch
             {
+                Console.WriteLine($"Not a URI: '{url}'");
                 return null;
             }
             return null;
@@ -154,6 +161,28 @@ namespace Lightsync_Browser
                 new PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.Edit)
             };
             SubscribePropertyChange();
+        }
+        public override string GetCurrentUrl()
+        {
+            return TryGetAddressBarValue();
+        }
+    }
+
+    public class Vivaldi : Browser
+    {
+        public new static string ProcessName { get => "vivaldi"; }
+
+        public Vivaldi(AutomationElement element) : base(element)
+        {
+
+            _addressBarPatternNumber = 1;
+            _addressBarConditions = new List<Condition> {
+                new PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.Document),
+                new PropertyCondition(AutomationElement.NameProperty, "Search or enter an address")
+            };
+            Console.WriteLine("Vivaldi");
+            SubscribePropertyChange();
+            Console.WriteLine($"Address: {GetCurrentUrl()}");
         }
         public override string GetCurrentUrl()
         {

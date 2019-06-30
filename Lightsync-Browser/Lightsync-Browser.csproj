@@ -46,6 +46,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Browser.cs" />
+    <Compile Include="Helper\Extensions.cs" />
     <Compile Include="IColorProvider.cs" />
     <Compile Include="LogitechGSDK.cs" />
     <Compile Include="Program.cs" />
@@ -59,5 +60,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
