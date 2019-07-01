@@ -63,7 +63,7 @@ namespace Lightsync_Browser
             var element = _element;
             foreach (var condition in _addressBarConditions)
             {
-                Console.WriteLine($"Element: {element.Current.Name}; {element.Current.ControlType.ProgrammaticName}");
+                Debug.WriteLine($"Element: {element.Current.Name}; {element.Current.ControlType.ProgrammaticName}");
                 element = element.FindFirst(TreeScope.Descendants, condition);
             }
             Console.WriteLine($"Address bar: {element.Current.Name}; {element.Current.ControlType.ProgrammaticName}");
@@ -87,9 +87,9 @@ namespace Lightsync_Browser
         protected void OnPropertyChange(object src, AutomationPropertyChangedEventArgs e)
         {
             AutomationElement sourceElement = src as AutomationElement;
-            Console.WriteLine($"OnPropertyChange Element: {sourceElement.Current.Name}; {sourceElement.Current.ControlType.ProgrammaticName}");
-            Console.WriteLine($"OnPropertyChange Property: {e.Property.ProgrammaticName}");
-            Console.WriteLine($"OnPropertyChange Value: {e.NewValue}");
+            Debug.WriteLine($"OnPropertyChange Element: {sourceElement.Current.Name}; {sourceElement.Current.ControlType.ProgrammaticName}");
+            Debug.WriteLine($"OnPropertyChange Property: {e.Property.ProgrammaticName}");
+            Debug.WriteLine($"OnPropertyChange Value: {e.NewValue}");
 
             if (e.Property == ValuePattern.ValueProperty)
             {
@@ -111,7 +111,7 @@ namespace Lightsync_Browser
             try
             {
                 var uri = new Uri(url.EnsureProtocol(UrlProtocols));
-                Console.WriteLine($"New URL with host: {uri.Host}");
+                Debug.WriteLine($"New URL with host: {uri.Host}");
                 var key = hostColor.Keys.FirstOrDefault(x => uri.Host.Contains(x));
                 if (key != null)
                 {
@@ -120,7 +120,7 @@ namespace Lightsync_Browser
             }
             catch
             {
-                Console.WriteLine($"Not a URI: '{url}'");
+                Debug.WriteLine($"Not a URI: '{url}'");
                 return null;
             }
             return null;
@@ -180,9 +180,9 @@ namespace Lightsync_Browser
                 new PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.Document),
                 new PropertyCondition(AutomationElement.NameProperty, "Search or enter an address")
             };
-            Console.WriteLine("Vivaldi");
+            Debug.WriteLine("Vivaldi");
             SubscribePropertyChange();
-            Console.WriteLine($"Address: {GetCurrentUrl()}");
+            Debug.WriteLine($"Address: {GetCurrentUrl()}");
         }
         public override string GetCurrentUrl()
         {
